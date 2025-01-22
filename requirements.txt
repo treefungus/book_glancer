@@ -2,7 +2,6 @@ streamlit
 pandas
 PyPDF2
 filetype
-random
 time
 nltk
 spacy
