@@ -5,3 +5,4 @@ filetype
 nltk
 spacy
 matplotlib
+seaborn
