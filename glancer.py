@@ -214,6 +214,6 @@ if st.session_state.show_entities:
        
 	map_persons = {'most common': 20, 'all': len(persons)}
 	most_common_persons = Counter(persons).most_common(map_persons[num_persons])
-	st.mardown('### Persons in Text:')
+	st.markdown('### Persons in Text:')
 	for person in most_common_persons:
 		st.markdown(f'**{person[0]}: {person[1]}**')
