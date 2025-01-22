@@ -189,6 +189,7 @@ if button_phrases:
 
 import spacy
 from collections import Counter
+spacy.cli.download("en_core_web_sm")
 
 # Creating spaCy language object
 nlp = spacy.load('en_core_web_sm')
