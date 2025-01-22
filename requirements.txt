@@ -6,3 +6,4 @@ nltk
 spacy
 matplotlib
 seaborn
+wordcloud
