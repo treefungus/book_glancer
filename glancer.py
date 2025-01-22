@@ -18,13 +18,13 @@ def progress_bar():
 	my_bar = st.progress(0, text=progress_text)
 
 	for percent_complete in range(100):
-    		time.sleep(0.01)
-    		my_bar.progress(percent_complete + 1, text=progress_text)
+		time.sleep(0.01)
+		my_bar.progress(percent_complete + 1, text=progress_text)
 	time.sleep(1)
 	my_bar.empty()
 
 #upload new book here
-if uploaded_file is not None and uploaded_file_cs is not None:
+if uploaded_file is not None:
 	progress_bar()
 	def check_type(source):
 		kind = filetype.guess(source)
@@ -38,8 +38,11 @@ if uploaded_file is not None and uploaded_file_cs is not None:
 		return content
 			
 	content = check_type(uploaded_file)
-	content_cs = check_type(uploaded_file_cs)
-else:
+	if uploaded_file_cs is not None:
+		content_cs = check_type(uploaded_file_cs)
+	else:
+		content_cs = None
+elif uploaded_file is None:
 	text = 'sources/rur.txt'
 	text_cs = 'sources/rur_cs.txt'
 
@@ -67,9 +70,11 @@ from nltk.tag import pos_tag
 import matplotlib.pyplot as plt, seaborn as sns
 
 nltk.download('punkt')
+nltk.download('punkt_tab')
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('averaged_perceptron_tagger')
+nltk.download('averaged_perceptron_tagger_eng') 
 
 @st.cache_data
 def get_tokens(content):
@@ -77,7 +82,8 @@ def get_tokens(content):
 	return tokens
 
 tokens = get_tokens(content)
-tokens_cs = get_tokens(content_cs)
+if content_cs is not None:
+	tokens_cs = get_tokens(content_cs)
 
 lemmatizer = WordNetLemmatizer()
 
@@ -85,10 +91,12 @@ lemmatizer = WordNetLemmatizer()
 def clean_words(tokens):
 	#some data cleaning
 	#tokenizing text + removing stopwords + lemmatizing
-	stops = stopwords.words('english') + ['said', 'saw', 'see', 'copyright', 'u', 'looked', '']
+	stops = stopwords.words('english') + ['said', 'saw', 'see', 'copyright', 'u', 'looked', 'made', 'got', 'asked']
 	clean_tokens = [token for token in tokens if token.lower() not in stops and token.isalnum()]
 	lemmas = [lemmatizer.lemmatize(token) for token in clean_tokens]
-	tagged = pos_tag(lemmas)
+	stop_lemmas = ['look', 'know', 'u', 'ask', 'go', 'get', 'make', 'way']
+	clean_lemmas = [lemma for lemma in lemmas if lemma not in stop_lemmas]
+	tagged = pos_tag(clean_lemmas)
 
 	#some extra cleaning
 	#filtering only common nouns, adjectives and verbs
@@ -102,6 +110,7 @@ freq = FreqDist(value_words)
 
 # Front-end behaviour
 
+st.cache_data.clear()
 st.sidebar.markdown(f'''
 ### Original Text Statistics
 - **Words**: {len(tokens)}
@@ -109,24 +118,29 @@ st.sidebar.markdown(f'''
 - **Standard Pages**: {len(content) / 1800:.2f}
 ''')
 
-st.sidebar.markdown(f'''
-### Translation Statistics
-- **Words**: {len(tokens_cs)}
-- **Characters**: {len(content_cs)}
-- **Standard Pages**: {len(content_cs) / 1800:.2f}
-''')
+if content_cs is not None:
+	st.sidebar.markdown(f'''
+	### Translation Statistics
+	- **Words**: {len(tokens_cs)}
+	- **Characters**: {len(content_cs)}
+	- **Standard Pages**: {len(content_cs) / 1800:.2f}
+	''')
 
 left_column, right_column, third_column = st.columns(3)
 
-show_parts = 'Show random parts of books'
-if left_column.button(show_parts):
-	progress_bar()
-	st.write('SOME RANDOM PART OF THE BOOK\n\n', middle_slice(content),
-		'\n\n*******************************\n',
-		'SOME RANDOM PART OF THE TRANSLATION\n\n', middle_slice(content_cs))
+button_parts = left_column.button('Show random parts of books')
+button_phrases = right_column.button('Show most common words and phrases')
+button_names = third_column.button('Show names and entities')
 
-show_phrases = 'Show most common words and phrases'
-if right_column.button(show_phrases):
+if button_parts:
+	progress_bar()
+	st.cache_data.clear()
+	st.write('SOME RANDOM PART OF THE BOOK\n\n', middle_slice(content),
+		'\n\n*******************************\n')
+	if content_cs is not None:
+		st.write('SOME RANDOM PART OF THE TRANSLATION\n\n', middle_slice(content_cs))
+
+if button_phrases:
 	progress_bar()
 
 	#plotting into bars
@@ -136,7 +150,7 @@ if right_column.button(show_phrases):
 	plt.title('some most common words')
 
 	st.pyplot(plt)
-
+	
 	#as a word cloud
 	from wordcloud import WordCloud
 
@@ -154,8 +168,7 @@ if right_column.button(show_phrases):
 
 	#creating bigrams: 2word phrases + their frequency
 
-	no_grams = st.sidebar.slider('Phrases of how many words?', 2, 3)
-	grams = list(ngrams(value_words, no_grams))
+	grams = list(ngrams(value_words, 2))
 	joined_grams = [' '.join(gram) for gram in grams]
 	grammy_freq = FreqDist(joined_grams)
 
@@ -173,22 +186,34 @@ if right_column.button(show_phrases):
 	plt.title('some most common phrases')
 
 	st.pyplot(plt)
-	
+
 import spacy
 from collections import Counter
 
 # Creating spaCy language object
 nlp = spacy.load('en_core_web_sm')
+nlp.max_length = len(content)+1
 
 @st.cache_data
 def spacy_object(content):
 	doc = nlp(content)
 	return doc
 
-if third_column('Show names and entities'):
-	entities = [(ent.text, ent.label_) for ent in doc.ents]
-	persons = [ent for ent in entities if ent[1] == 'PERSON']
+doc = spacy_object(content)
 
-	most_common_persons = Counter(persons).most_common(20)
-	st.write('20 Most Common Persons in Text:')
-	st.write(most_common_persons)
+if 'show_entities' not in st.session_state:
+    st.session_state.show_entities = False
+
+if button_names:
+    st.session_state.show_entities = True
+
+if st.session_state.show_entities:
+	entities = [(ent.text, ent.label_) for ent in doc.ents]
+	persons = [ent[0] for ent in entities if ent[1] == 'PERSON']
+	num_persons = st.selectbox("How many persons", ['most common', 'all'])
+       
+	map_persons = {'most common': 20, 'all': len(persons)}
+	most_common_persons = Counter(persons).most_common(map_persons[num_persons])
+	st.mardown('### Persons in Text:')
+	for person in most_common_persons:
+		st.markdown(f'**{person[0]}: {person[1]}**')
