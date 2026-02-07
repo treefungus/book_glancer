@@ -25,25 +25,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tag import pos_tag
 from nltk.util import ngrams
 
-def ensure_nltk():
-    resources = [
-        "punkt",
-        "punkt_tab",
-        "stopwords",
-        "wordnet",
-        "averaged_perceptron_tagger",
-        "averaged_perceptron_tagger_eng",
-    ]
-    for res in resources:
-        try:
-            nltk.data.find(res)
-        except LookupError:
-            nltk.download(res)
-
-ensure_nltk()
-
-#spaCy imported below to facilitate runtime
-#import spacy
+import spacy
 #from collections import Counter
 #spacy.cli.download('en_core_web_sm')
 
