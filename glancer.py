@@ -126,11 +126,47 @@ if content_cs is not None:
 	- **Standard Pages**: {len(content_cs) / 1800:.2f}
 	''')
 
+st.write("Classic NLP tasks")
 left_column, right_column, third_column = st.columns(3)
 
 button_parts = left_column.button('Show random parts of books')
 button_phrases = right_column.button('Show most common words and phrases')
 button_names = third_column.button('Show names and entities')
+
+# adding experimental LLM layer
+st.divider()
+st.write("LLM dialog (experimental)")
+
+# Check if running locally (ollama available)
+import sys
+is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
+
+if not is_local:
+    st.warning("⚠️ This feature is only available when running locally (requires Ollama)")
+    st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100, disabled=True)
+    st.button("Submit", disabled=True)
+else:
+    user_prompt = st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100)
+    button_llm_dialog = st.button("Submit")
+    if button_llm_dialog and user_prompt:
+        import ollama
+        prompt = f"""You are a book editor. You are great at getting reliable insights from a book and interpreting them. 
+Use ONLY the following book text to answer the question.
+
+Book text:
+{content}
+
+Question: {user_prompt}
+
+Answer based only on the book text above:"""
+
+        with st.spinner("Thinking..."):
+            response = ollama.chat(
+                model="gemma2:2b",
+                messages=[{"role": "user", "content": prompt}],
+                options={"num_ctx": 128000}
+            )
+        st.write(response["message"]["content"])
 
 if button_parts:
 	progress_bar()
@@ -189,7 +225,7 @@ if button_phrases:
 
 import spacy
 from collections import Counter
-spacy.cli.download("en_core_web_sm")
+spacy.cli.download('en_core_web_sm')
 
 # Creating spaCy language object
 nlp = spacy.load('en_core_web_sm')
@@ -202,19 +238,30 @@ def spacy_object(content):
 
 doc = spacy_object(content)
 
-if 'show_entities' not in st.session_state:
-    st.session_state.show_entities = False
-
 if button_names:
-    st.session_state.show_entities = True
-
-if st.session_state.show_entities:
 	entities = [(ent.text, ent.label_) for ent in doc.ents]
-	persons = [ent[0] for ent in entities if ent[1] == 'PERSON']
-	num_persons = st.selectbox("How many persons", ['most common', 'all'])
-       
-	map_persons = {'most common': 20, 'all': len(persons)}
-	most_common_persons = Counter(persons).most_common(map_persons[num_persons])
-	st.markdown('### Persons in Text:')
-	for person in most_common_persons:
-		st.markdown(f'**{person[0]}: {person[1]}**')
+	persons = [ent for ent in entities if ent[1] == 'PERSON']
+	places = [ent for ent in entities if ent[1] == 'GPE']
+	organizations = [ent for ent in entities if ent[1] == 'ORG']
+
+	most_common_persons = Counter(persons).most_common(20)
+	most_common_places = Counter(places).most_common(20)
+	most_common_orgs = Counter(organizations).most_common(20)
+	chosen_ent = st.multiselect('Do you want to list ', ['persons', 'places', 'organizations'])
+
+	st.write(entity for entity in most_common_persons)
+	st.write(entity for entity in most_common_places)
+	st.write(entity for entity in most_common_orgs)
+
+	if chosen_ent:
+		st.markdown(f'### Main {chosen_ent} in text:')
+		for entity in chosen_ent:
+			if entity == 'persons':
+				for person, count in most_common_persons:
+					st.markdown(f'**{person}** (Count: {count})')
+			elif entity == 'places':
+				for place, count in most_common_places:
+					st.markdown(f'**{place}** (Count: {count})')
+			elif entity == 'organizations':
+				for org, count in most_common_orgs:
+					st.markdown(f'**{org}** (Count: {count})')
