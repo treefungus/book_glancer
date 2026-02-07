@@ -24,6 +24,23 @@ from nltk.stem import WordNetLemmatizer
 from nltk.tag import pos_tag
 from nltk.util import ngrams
 
+def ensure_nltk():
+    resources = [
+        "punkt",
+        "punkt_tab",
+        "stopwords",
+        "wordnet",
+        "averaged_perceptron_tagger",
+        "averaged_perceptron_tagger_eng",
+    ]
+    for res in resources:
+        try:
+            nltk.data.find(res)
+        except LookupError:
+            nltk.download(res)
+
+ensure_nltk()
+
 #spaCy imported below to facilitate runtime
 #import spacy
 #from collections import Counter
@@ -84,13 +101,6 @@ elif uploaded_file is None:
 def middle_slice(book):
 	random_words = random.randint(round(len(book)/4), round(len(book) - len(book)/4))
 	return book[random_words:random_words+600]
-
-nltk.download('punkt')
-nltk.download('punkt_tab')
-nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('averaged_perceptron_tagger_eng') 
 
 @st.cache_data
 def get_tokens(content):
@@ -284,12 +294,12 @@ Answer based only on the book text above:"""
 # adding hybrid NLP/LLM workflows
 st.divider()
 st.write("""
-#### Hybrid ideas (in progress)
+#### Hybrid ideas (NLP+LLM, in progress)
 
-A. Character extraction (classic NLP) + top 5 characters' medaillons (LLM)
+##### A. Character extraction (classic NLP) + top 5 characters' medaillons (LLM)
 
 spaCy entity recognition > filter persons > filter top 5 > extract chunks of texts surrounding given character > feed LLM chunk corpurs (RAG) > prompt LLM the create character's medailon
 
-B. Talk with actual characters
+#### B. Talk with actual characters
 feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extracted character's direct speech (separate workflow) > system prompt as model's personality > talk to model/character
 """)
