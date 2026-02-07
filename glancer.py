@@ -126,47 +126,13 @@ if content_cs is not None:
 	- **Standard Pages**: {len(content_cs) / 1800:.2f}
 	''')
 
-st.write("Classic NLP tasks")
+st.write("#### Classic NLP tasks")
 left_column, right_column, third_column = st.columns(3)
 
 button_parts = left_column.button('Show random parts of books')
 button_phrases = right_column.button('Show most common words and phrases')
 button_names = third_column.button('Show names and entities')
 
-# adding experimental LLM layer
-st.divider()
-st.write("LLM dialog (experimental)")
-
-# Check if running locally (ollama available)
-import sys
-is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
-
-if not is_local:
-    st.warning("⚠️ This feature is only available when running locally (requires Ollama)")
-    st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100, disabled=True)
-    st.button("Submit", disabled=True)
-else:
-    user_prompt = st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100)
-    button_llm_dialog = st.button("Submit")
-    if button_llm_dialog and user_prompt:
-        import ollama
-        prompt = f"""You are a book editor. You are great at getting reliable insights from a book and interpreting them. 
-Use ONLY the following book text to answer the question.
-
-Book text:
-{content}
-
-Question: {user_prompt}
-
-Answer based only on the book text above:"""
-
-        with st.spinner("Thinking..."):
-            response = ollama.chat(
-                model="gemma2:2b",
-                messages=[{"role": "user", "content": prompt}],
-                options={"num_ctx": 128000}
-            )
-        st.write(response["message"]["content"])
 
 if button_parts:
 	progress_bar()
@@ -265,3 +231,51 @@ if button_names:
 			elif entity == 'organizations':
 				for org, count in most_common_orgs:
 					st.markdown(f'**{org}** (Count: {count})')
+
+# adding experimental LLM layer
+st.divider()
+st.write("#### LLM dialog (experimental)")
+
+# Check if running locally (ollama available)
+import sys
+is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
+
+if not is_local:
+    st.warning("⚠️ This feature is only available when running locally (requires Ollama)")
+    st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100, disabled=True)
+    st.button("Submit", disabled=True)
+else:
+    user_prompt = st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100)
+    button_llm_dialog = st.button("Submit")
+    if button_llm_dialog and user_prompt:
+        import ollama
+        prompt = f"""You are a book editor. You are great at getting reliable insights from a book and interpreting them. 
+Use ONLY the following book text to answer the question.
+
+Book text:
+{content}
+
+Question: {user_prompt}
+
+Answer based only on the book text above:"""
+
+        with st.spinner("Thinking..."):
+            response = ollama.chat(
+                model="gemma2:2b",
+                messages=[{"role": "user", "content": prompt}],
+                options={"num_ctx": 128000}
+            )
+        st.write(response["message"]["content"])
+
+# adding hybrid NLP/LLM workflows
+st.divider()
+st.write("""
+#### Hybrid ideas (in progress)
+
+A. Character extraction (classic NLP) + top 5 characters' medaillons (LLM)
+
+spaCy entity recongition > filter persons > filter top 5 > extract chunks of texts surrounding given character > feed LLM chunk corpurs (RAG) > prompt LLM the create character's medailon
+
+B. Talk with actual characters
+feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extracted character's direct speech (separate workflow) > system prompt as model's personality > talk to model/character
+""")
