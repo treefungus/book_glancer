@@ -1,11 +1,35 @@
+# front-end
 import streamlit as st
-import pandas as pd
 
+# back-end
+import random
+import time
+import sys
+
+# doc treatment
 import PyPDF2
 import filetype
 
-import random
-import time
+#stats and visuals
+import pandas as pd
+import matplotlib.pyplot as plt, seaborn as sns
+from wordcloud import WordCloud
+
+# NLP
+import nltk
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.probability import FreqDist
+from nltk.stem import WordNetLemmatizer
+from nltk.tag import pos_tag
+from nltk.util import ngrams
+
+import spacy
+from collections import Counter
+spacy.cli.download('en_core_web_sm')
+
+# LLM
+import ollama
 
 st.subheader('BOOK GLANCER')
 st.write('Quick overview of a book and its translation. Random snap, word frequency, n-grams. By default \'R.U.R\' by Karel Čapek on open license. Strictly non-commercial use.')
@@ -59,15 +83,6 @@ elif uploaded_file is None:
 def middle_slice(book):
 	random_words = random.randint(round(len(book)/4), round(len(book) - len(book)/4))
 	return book[random_words:random_words+600]
-
-import nltk
-from nltk.tokenize import word_tokenize, sent_tokenize
-from nltk.corpus import stopwords
-from nltk.probability import FreqDist
-from nltk.stem import WordNetLemmatizer
-from nltk.tag import pos_tag
-
-import matplotlib.pyplot as plt, seaborn as sns
 
 nltk.download('punkt')
 nltk.download('punkt_tab')
@@ -133,7 +148,53 @@ button_parts = left_column.button('Show random parts of books')
 button_phrases = right_column.button('Show most common words and phrases')
 button_names = third_column.button('Show names and entities')
 
+# adding experimental LLM layer
+st.divider()
+st.write("#### LLM dialog (experimental)")
 
+# Check if running locally (ollama available)
+is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
+
+if not is_local:
+    st.warning("⚠️ This feature is only available when running locally (requires Ollama)")
+    st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100, disabled=True)
+    st.button("Submit", disabled=True)
+else:
+    user_prompt = st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100)
+    button_llm_dialog = st.button("Submit")
+    if button_llm_dialog and user_prompt:
+        prompt = f"""You are a book editor. You are great at getting reliable insights from a book and interpreting them. 
+Use ONLY the following book text to answer the question.
+
+Book text:
+{content}
+
+Question: {user_prompt}
+
+Answer based only on the book text above:"""
+
+        with st.spinner("Thinking..."):
+            response = ollama.chat(
+                model="gemma2:2b",
+                messages=[{"role": "user", "content": prompt}],
+                options={"num_ctx": 128000}
+            )
+        st.write(response["message"]["content"])
+
+# adding hybrid NLP/LLM workflows
+st.divider()
+st.write("""
+#### Hybrid ideas (in progress)
+
+A. Character extraction (classic NLP) + top 5 characters' medaillons (LLM)
+
+spaCy entity recongition > filter persons > filter top 5 > extract chunks of texts surrounding given character > feed LLM chunk corpurs (RAG) > prompt LLM the create character's medailon
+
+B. Talk with actual characters
+feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extracted character's direct speech (separate workflow) > system prompt as model's personality > talk to model/character
+""")
+
+# buttons behaviour
 if button_parts:
 	progress_bar()
 	st.cache_data.clear()
@@ -154,8 +215,6 @@ if button_phrases:
 	st.pyplot(plt)
 	
 	#as a word cloud
-	from wordcloud import WordCloud
-
 	text = ' '.join(value_words)
 	wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
 
@@ -165,9 +224,6 @@ if button_phrases:
 	st.pyplot(plt)
 
 	#experimenting with bigrams
-
-	from nltk.util import ngrams
-
 	#creating bigrams: 2word phrases + their frequency
 
 	grams = list(ngrams(value_words, 2))
@@ -188,10 +244,6 @@ if button_phrases:
 	plt.title('some most common phrases')
 
 	st.pyplot(plt)
-
-import spacy
-from collections import Counter
-spacy.cli.download('en_core_web_sm')
 
 # Creating spaCy language object
 nlp = spacy.load('en_core_web_sm')
@@ -231,51 +283,3 @@ if button_names:
 			elif entity == 'organizations':
 				for org, count in most_common_orgs:
 					st.markdown(f'**{org}** (Count: {count})')
-
-# adding experimental LLM layer
-st.divider()
-st.write("#### LLM dialog (experimental)")
-
-# Check if running locally (ollama available)
-import sys
-is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
-
-if not is_local:
-    st.warning("⚠️ This feature is only available when running locally (requires Ollama)")
-    st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100, disabled=True)
-    st.button("Submit", disabled=True)
-else:
-    user_prompt = st.text_area("Ask a question about the book", placeholder="e.g. Who is the main character?", height=100)
-    button_llm_dialog = st.button("Submit")
-    if button_llm_dialog and user_prompt:
-        import ollama
-        prompt = f"""You are a book editor. You are great at getting reliable insights from a book and interpreting them. 
-Use ONLY the following book text to answer the question.
-
-Book text:
-{content}
-
-Question: {user_prompt}
-
-Answer based only on the book text above:"""
-
-        with st.spinner("Thinking..."):
-            response = ollama.chat(
-                model="gemma2:2b",
-                messages=[{"role": "user", "content": prompt}],
-                options={"num_ctx": 128000}
-            )
-        st.write(response["message"]["content"])
-
-# adding hybrid NLP/LLM workflows
-st.divider()
-st.write("""
-#### Hybrid ideas (in progress)
-
-A. Character extraction (classic NLP) + top 5 characters' medaillons (LLM)
-
-spaCy entity recongition > filter persons > filter top 5 > extract chunks of texts surrounding given character > feed LLM chunk corpurs (RAG) > prompt LLM the create character's medailon
-
-B. Talk with actual characters
-feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extracted character's direct speech (separate workflow) > system prompt as model's personality > talk to model/character
-""")
