@@ -1,3 +1,6 @@
+# front-end
+import streamlit as st
+
 import os
 st.write("Current directory:", os.getcwd())
 st.write("Files in current directory:", os.listdir('.'))
@@ -6,9 +9,6 @@ if os.path.exists('./nltk_data'):
     st.write("Contents:", os.listdir('./nltk_data'))
 else:
     st.write("❌ nltk_data NOT FOUND")
-
-# front-end
-import streamlit as st
 
 # back-end
 import random
