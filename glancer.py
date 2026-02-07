@@ -1,27 +1,6 @@
 # front-end
 import streamlit as st
 
-import os
-st.write("Current directory:", os.getcwd())
-st.write("Files in current directory:", os.listdir('.'))
-if os.path.exists('./nltk_data'):
-    st.write("✅ nltk_data exists!")
-    st.write("Contents:", os.listdir('./nltk_data'))
-    
-    # Check deeper
-    st.write("Corpora contents:", os.listdir('./nltk_data/corpora'))
-    st.write("Taggers contents:", os.listdir('./nltk_data/taggers'))
-    st.write("Tokenizers contents:", os.listdir('./nltk_data/tokenizers'))
-    
-    # Check if wordnet specifically exists
-    if os.path.exists('./nltk_data/corpora/wordnet'):
-        st.write("✅ WordNet exists!")
-        st.write("WordNet contents:", os.listdir('./nltk_data/corpora/wordnet')[:10])  # first 10 files
-    else:
-        st.write("❌ WordNet NOT FOUND")
-else:
-    st.write("❌ nltk_data NOT FOUND")
-
 # back-end
 import random
 import time
