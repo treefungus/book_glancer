@@ -23,6 +23,7 @@ from nltk.probability import FreqDist
 from nltk.stem import WordNetLemmatizer
 from nltk.tag import pos_tag
 from nltk.util import ngrams
+nltk.data.path.append("./nltk_data")
 
 def ensure_nltk():
     resources = [
