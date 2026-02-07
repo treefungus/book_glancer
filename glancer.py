@@ -17,13 +17,13 @@ from wordcloud import WordCloud
 
 # NLP
 import nltk
+nltk.data.path.append("./nltk_data")
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 from nltk.stem import WordNetLemmatizer
 from nltk.tag import pos_tag
 from nltk.util import ngrams
-nltk.data.path.append("./nltk_data")
 
 def ensure_nltk():
     resources = [
