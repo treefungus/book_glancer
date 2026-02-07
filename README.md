@@ -2,4 +2,4 @@ NLP app for book content analysis: text samples, word frequencies, wordcloud, en
 
 Here for front-end: https://bookglancer.streamlit.app/
 
-#nlt #spacy
+#nltk #spacy #ollama
