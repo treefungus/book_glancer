@@ -290,8 +290,8 @@ feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extract
 # A. Character Medallion Generation
 if not is_local:
     st.warning("⚠️ Character medallion generation requires Ollama (local only)")
-    st.selectbox("Select character", ["Feature unavailable"], disabled=True)
-    st.button("Generate Medallion", disabled=True)
+    st.selectbox("Select character", ["Gall"], disabled=True)
+    st.button("Generate Medallion", ["What do you think about Helena, Dr. Gall? Be honest."], disabled=True)
 else:
     import ollama
     import re
