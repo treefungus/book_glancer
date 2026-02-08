@@ -281,8 +281,132 @@ st.write("""
 
 ##### A. Character extraction (classic NLP) + top 5 characters' medaillons (LLM)
 
-spaCy entity recognition > filter persons > filter top 5 > extract chunks of texts surrounding given character > feed LLM chunk corpurs (RAG) > prompt LLM the create character's medailon
+spaCy entity recognition > filter persons > filter top 5 > extract chunks of texts surrounding given character > feed chunk corpurs to LLM (RAG) > prompt LLM to create character's medailon
 
 #### B. Talk with actual characters
 feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extracted character's direct speech (separate workflow) > system prompt as model's personality > talk to model/character
 """)
+
+# A. Character Medallion Generation
+if not is_local:
+    st.warning("⚠️ Character medallion generation requires Ollama (local only)")
+    st.selectbox("Select character", ["Feature unavailable"], disabled=True)
+    st.button("Generate Medallion", disabled=True)
+else:
+    import ollama
+    import re
+    from collections import Counter
+    
+    st.subheader("A. Generate Character Medallion")
+    
+    # Extract top characters
+    if 'doc' not in locals():
+        with st.spinner("Analyzing characters..."):
+            nlp = spacy.load("en_core_web_sm")
+            nlp.max_length = len(content) + 1
+            doc = nlp(content)
+    
+    entities = [(ent.text, ent.label_) for ent in doc.ents]
+    persons = [ent for ent in entities if ent[1] in ["PERSON", "ORG"]]
+    top_characters = Counter(persons).most_common(10)
+    character_names = [name for (name, _), count in top_characters]
+    
+    selected_char = st.selectbox("Select character", character_names)
+    
+    if st.button("Generate Medallion"):
+        with st.spinner(f"Generating medallion for {selected_char}..."):
+            # Extract character chunks
+            char_chunks = [content[max(0, pos-300):min(len(content), pos+300)] 
+                          for pos in range(len(content)) 
+                          if content.startswith(selected_char, pos)]
+            
+            combined_chunks = "\n\n---\n\n".join(char_chunks[:20])
+            
+            prompt = f"""You are a literary analyst. Based ONLY on these text excerpts about {selected_char}, create a character medallion.
+
+Text excerpts:
+{combined_chunks}
+
+Focus on personality, role in story, characteristics, keep plot unspoilered.
+"""
+            
+            response = ollama.chat(
+                model="gemma2:2b",
+                messages=[{"role": "user", "content": prompt}],
+                options={"num_ctx": 128000}
+            )
+            
+            st.session_state['medallion'] = response["message"]["content"]
+            st.session_state['character'] = selected_char
+            st.session_state['chunks'] = char_chunks
+        
+        st.markdown(f"### Character Medallion: {selected_char}")
+        st.write(st.session_state['medallion'])
+
+# B. Chat with Character
+st.divider()
+if not is_local:
+    st.warning("⚠️ Character chat requires Ollama (local only)")
+    st.text_input("You:", disabled=True)
+    st.button("Send", disabled=True)
+else:
+    import ollama
+    import re
+    
+    st.subheader("B. Chat with Character")
+    
+    if 'medallion' in st.session_state and 'character' in st.session_state:
+        character = st.session_state['character']
+        medallion = st.session_state['medallion']
+        char_chunks = st.session_state['chunks']
+        
+        # Extract dialogues
+        quotes = r'[""\"\'\`\«\»\‹\›]([^""\"\'`\«\»\‹\›]+)[""\"\'\`\«\»\‹\›]'
+        play = r'^[A-Z\s]{2,}\.\s+([^.\n]+\.)'
+        pattern = f'{quotes}|{play}'
+        all_dialogues = re.findall(pattern, content, re.MULTILINE)
+        all_dialogues = [m[0] or m[1] for m in all_dialogues if any(m)]
+        
+        # Filter character dialogues
+        char_dialogues = []
+        for dialogue in all_dialogues:
+            pos = content.find(dialogue)
+            if pos > -1:
+                context = content[max(0, pos-100):pos+len(dialogue)+100]
+                if character in context:
+                    char_dialogues.append(dialogue)
+        
+        # Initialize chat
+        if 'messages' not in st.session_state:
+            system_prompt = f"""You are {character}. Your personality: {medallion}
+Story context: {char_chunks[:10]}
+Your speech style: {char_dialogues[:30]}
+Stay in character and match your speech patterns."""
+            st.session_state['messages'] = [{"role": "system", "content": system_prompt}]
+        
+        # Display chat history
+        for msg in st.session_state['messages'][1:]:  # Skip system prompt
+            if msg['role'] == 'user':
+                st.chat_message("user").write(msg['content'])
+            else:
+                st.chat_message("assistant").write(f"**{character}**: {msg['content']}")
+        
+        # Chat input
+        user_input = st.chat_input(f"Talk to {character}...")
+        
+        if user_input:
+            st.session_state['messages'].append({"role": "user", "content": user_input})
+            st.chat_message("user").write(user_input)
+            
+            with st.spinner(f"{character} is thinking..."):
+                response = ollama.chat(
+                    model="gemma2:2b",
+                    messages=st.session_state['messages'],
+                    options={"num_ctx": 128000}
+                )
+            
+            answer = response["message"]["content"]
+            st.session_state['messages'].append({"role": "assistant", "content": answer})
+            st.chat_message("assistant").write(f"**{character}**: {answer}")
+    else:
+        st.info("👆 First generate a character medallion above to start chatting!")
