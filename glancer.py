@@ -52,8 +52,8 @@ def progress_bar():
 if uploaded_file is not None:
 	progress_bar()
 	def check_type(source):
-		kind = filetype.guess(source)
-		if kind.mime == 'application/pdf':
+		kind = filetype.guess(source.getvalue())
+		if kind and kind.mime == 'application/pdf':
 			reader = PyPDF2.PdfReader(source)
 			content = ''
 			for page in reader.pages:
