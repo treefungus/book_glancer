@@ -291,7 +291,7 @@ feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extract
 if not is_local:
     st.warning("⚠️ Character medallion generation requires Ollama (local only)")
     st.selectbox("Select character", ["Gall"], disabled=True)
-    st.button("Generate Medallion", ["What do you think about Helena, Dr. Gall? Be honest."], disabled=True)
+    st.button("Generate Medallion", disabled=True)
 else:
     import ollama
     import re
@@ -347,8 +347,8 @@ Focus on personality, role in story, characteristics, keep plot unspoilered.
 st.divider()
 if not is_local:
     st.warning("⚠️ Character chat requires Ollama (local only)")
-    st.text_input("You:", disabled=True)
-    st.button("Send", disabled=True)
+    st.text_input("You:", ["What do you think about Helena, Dr. Gall? Be honest."], disabled=True)
+    st.button("Talk to them", disabled=True)
 else:
     import ollama
     import re
