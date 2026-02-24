@@ -35,9 +35,6 @@ import spacy
 # for export formats
 import json
 
-# Check if running locally (ollama available)
-is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
-
 st.subheader('BOOK GLANCER')
 st.write('Quick overview of a book and its translation. Random snap, word frequency, n-grams. By default \'R.U.R\' by Karel Čapek on open license. Strictly non-commercial use.')
 
@@ -124,9 +121,6 @@ value_words = clean_words(tokens)
 freq = FreqDist(value_words)
 
 # Front-end behaviour
-
-if not is_local:
-    st.write("Exporting to bilingual XLIFF requires xml library; local only for now")
 
 st.cache_data.clear()
 st.sidebar.markdown(f'''
@@ -254,7 +248,7 @@ st.divider()
 st.write("#### LLM dialog (experimental)")
 
 # Check if running locally (ollama available)
-#is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
+is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
 
 if not is_local:
     st.warning("⚠️ This feature is only available when running locally (requires Ollama)")
