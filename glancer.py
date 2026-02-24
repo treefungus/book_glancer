@@ -348,7 +348,7 @@ Focus on personality, role in story, characteristics, keep plot unspoilered.
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("Generate Medallion"):
+    if st.button("Generate a Medallion"):
         with st.spinner(f"Generating medallion for {selected_char}..."):
             medallion = generate_medallion(selected_char)
 
