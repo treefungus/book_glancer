@@ -295,6 +295,7 @@ if not is_local:
     st.warning("⚠️ Character medallion generation requires Ollama (local only)")
     st.selectbox("Select character", ["Gall"], disabled=True)
     st.button("Generate Medallion", disabled=True, key="btn_medallion_generate_disabled")
+    st.button("Export character as JSON", disabled=True, key="btn_export_json_disabled")
 else:
     import ollama
     import re
