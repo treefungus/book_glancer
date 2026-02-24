@@ -294,7 +294,7 @@ feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extract
 if not is_local:
     st.warning("⚠️ Character medallion generation requires Ollama (local only)")
     st.selectbox("Select character", ["Gall"], disabled=True)
-    st.button("Generate Medallion", disabled=True)
+    st.button("Generate Medallion", disabled=True, key="btn_medallion_generate_disabled")
 else:
     import ollama
     import re
@@ -348,7 +348,7 @@ Focus on personality, role in story, characteristics, keep plot unspoilered.
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("Generate a Medallion"):
+    if st.button("Generate Medallion", key="btn_medallion_generate"):
         with st.spinner(f"Generating medallion for {selected_char}..."):
             medallion = generate_medallion(selected_char)
 
