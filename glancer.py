@@ -344,43 +344,51 @@ Focus on personality, role in story, characteristics, keep plot unspoilered.
         
         return response["message"]["content"]
     
-    # Buttons side by side
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        if st.button("Generate Medallion"):
-            with st.spinner(f"Generating medallion for {selected_char}..."):
-                medallion = generate_medallion(selected_char)
-            
-            st.markdown(f"### Character Medallion: {selected_char}")
-            st.write(medallion)
-    
-    with col2:
-        if st.button("Export character as JSON"):
-            # Generate medallion if not already in session
-            if 'medallion' not in st.session_state or st.session_state.get('character') != selected_char:
-                with st.spinner(f"Generating medallion for {selected_char}..."):
-                    generate_medallion(selected_char)
-            
-            # Build export structure
-            character_data = {
-                "characters": [
-                    {
-                        "name": st.session_state['character'],
-                        "profile": st.session_state['medallion']
-                    }
-                ]
-            }
-            
-            json_str = json.dumps(character_data, ensure_ascii=False, indent=2)
-            
-            st.download_button(
-                label="Download JSON",
-                data=json_str,
-                file_name=f"{selected_char}_profile.json",
-                mime="application/json"
-            )
+# Buttons side by side
+col1, col2 = st.columns(2)
 
+with col1:
+    if st.button("Generate Medallion"):
+        with st.spinner(f"Generating medallion for {selected_char}..."):
+            medallion = generate_medallion(selected_char)
+
+with col2:
+    if st.button("Export character as JSON"):
+        # Generate medallion if not already in session
+        if 'medallion' not in st.session_state or st.session_state.get('character') != selected_char:
+            with st.spinner(f"Generating medallion for {selected_char}..."):
+                generate_medallion(selected_char)
+        
+        # Get book title safely
+        book_title = uploaded_file.name.replace('.txt', '').replace('.pdf', '') if uploaded_file else "Unknown Book"
+        
+        # Build export structure
+        character_data = {
+            "metadata": {
+                "book_title": book_title
+            },
+            "characters": [
+                {
+                    "name": st.session_state['character'],
+                    "profile": st.session_state['medallion']
+                }
+            ]
+        }
+        
+        json_str = json.dumps(character_data, ensure_ascii=False, indent=2)
+        
+        st.download_button(
+            label="Download JSON",
+            data=json_str,
+            file_name=f"{selected_char}_profile.json",
+            mime="application/json"
+        )
+
+# Display medallion if it exists (OUTSIDE columns)
+if 'medallion' in st.session_state:
+    st.markdown(f"### Character Medallion: {st.session_state['character']}")
+    st.write(st.session_state['medallion'])
+            
 # B. Chat with Character
 st.divider()
 if not is_local:
