@@ -126,8 +126,7 @@ freq = FreqDist(value_words)
 # Front-end behaviour
 
 if not is_local:
-    st.write("requires xml library; local only for now")
-    st.sidebar.button("Export to bilingual XLIFF (experimental)", disabled=True, key="btn_xliff_disabled")
+    st.write("Exporting to bilingual XLIFF requires xml library; local only for now")
 
 st.cache_data.clear()
 st.sidebar.markdown(f'''
