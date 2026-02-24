@@ -32,6 +32,9 @@ import spacy
 # LLM, imports only on local setting 
 # import ollama
 
+# for export formats
+import json
+
 st.subheader('BOOK GLANCER')
 st.write('Quick overview of a book and its translation. Random snap, word frequency, n-grams. By default \'R.U.R\' by Karel Čapek on open license. Strictly non-commercial use.')
 
@@ -295,6 +298,7 @@ if not is_local:
 else:
     import ollama
     import re
+    import json
     from collections import Counter
     
     st.subheader("A. Generate Character Medallion")
@@ -313,35 +317,69 @@ else:
     
     selected_char = st.selectbox("Select character", character_names)
     
-    if st.button("Generate Medallion"):
-        with st.spinner(f"Generating medallion for {selected_char}..."):
-            # Extract character chunks
-            char_chunks = [content[max(0, pos-300):min(len(content), pos+300)] 
-                          for pos in range(len(content)) 
-                          if content.startswith(selected_char, pos)]
-            
-            combined_chunks = "\n\n---\n\n".join(char_chunks[:20])
-            
-            prompt = f"""You are a literary analyst. Based ONLY on these text excerpts about {selected_char}, create a character medallion.
-
+    # Function to generate medallion (outside button logic)
+    def generate_medallion(character_name):
+        # Extract character chunks
+        char_chunks = [content[max(0, pos-300):min(len(content), pos+300)] 
+                      for pos in range(len(content)) 
+                      if content.startswith(character_name, pos)]
+        
+        combined_chunks = "\n\n---\n\n".join(char_chunks[:20])
+        
+        prompt = f"""You are a literary analyst. Based ONLY on these text excerpts about {character_name}, create a character medallion.
 Text excerpts:
 {combined_chunks}
-
 Focus on personality, role in story, characteristics, keep plot unspoilered.
 """
-            
-            response = ollama.chat(
-                model="gemma2:2b",
-                messages=[{"role": "user", "content": prompt}],
-                options={"num_ctx": 128000}
-            )
-            
-            st.session_state['medallion'] = response["message"]["content"]
-            st.session_state['character'] = selected_char
-            st.session_state['chunks'] = char_chunks
         
-        st.markdown(f"### Character Medallion: {selected_char}")
-        st.write(st.session_state['medallion'])
+        response = ollama.chat(
+            model="gemma2:2b",
+            messages=[{"role": "user", "content": prompt}],
+            options={"num_ctx": 128000}
+        )
+        
+        st.session_state['medallion'] = response["message"]["content"]
+        st.session_state['character'] = character_name
+        st.session_state['chunks'] = char_chunks
+        
+        return response["message"]["content"]
+    
+    # Buttons side by side
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Generate Medallion"):
+            with st.spinner(f"Generating medallion for {selected_char}..."):
+                medallion = generate_medallion(selected_char)
+            
+            st.markdown(f"### Character Medallion: {selected_char}")
+            st.write(medallion)
+    
+    with col2:
+        if st.button("Export character as JSON"):
+            # Generate medallion if not already in session
+            if 'medallion' not in st.session_state or st.session_state.get('character') != selected_char:
+                with st.spinner(f"Generating medallion for {selected_char}..."):
+                    generate_medallion(selected_char)
+            
+            # Build export structure
+            character_data = {
+                "characters": [
+                    {
+                        "name": st.session_state['character'],
+                        "profile": st.session_state['medallion']
+                    }
+                ]
+            }
+            
+            json_str = json.dumps(character_data, ensure_ascii=False, indent=2)
+            
+            st.download_button(
+                label="Download JSON",
+                data=json_str,
+                file_name=f"{selected_char}_profile.json",
+                mime="application/json"
+            )
 
 # B. Chat with Character
 st.divider()

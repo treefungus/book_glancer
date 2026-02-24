@@ -4,65 +4,8 @@ R.U.R.
 
 (Rossum´s Universal Robots)
 
-Kolektivní drama o vstupní komedii a třech dějstvích
-
-
-
-OSOBY
-
-
-
-Harry Domin: centrální ředitel Rossumových Univerzálních Robotů
-Inž. Fabry: generální technický ředitel R.U.R.
-Dr. Gall: přednosta fyziologického a výzkumného oddělení R.U.R.
-Dr. Hallemeier: přednosta ústavu pro psychologii a výchovu robotů R.U.R
-Konzul Busman: generální komerční ředitel R.U.R.
-Stavitel Alquist: šéf staveb R.U.R.
-Helena Gloryová
-Nána: její chůva
-Marius: Robot
-Sulla: Robotka
-Radius: Robot
-Damon: Robot
-1. Robot
-2. Robot
-3. Robot
-4. Robot
-Primus: Robot
-Helena: Robotka
-Robotský sluha
-a četní Roboti
-
-Domin: v předehře asi osmatřicetiletý, vysoký, oholený
-
-Fabry: rovněž oholený, plavý, vážné a jemné tváře
-
-Dr. Gall: drobný, živý, snědý, s černým knírem
-
-Hallemeier: ohromný, hřmotný, se zrzavým anglickým knírem a zrzavým
-    kartáčem vlasů
-
-Busman: tlustý, plešatý, krátkozraký žid
-
-Alquist: starší než ostatní, nedbale oblečený, dlouhých, prošedivělých
-    vlasů a vousů
-
-Helena: velmi elegantní
-
-Ve vlastní hře všichni o deset let starší.
-
-Roboti v předehře oblečeni jako lidé. Jsou úsečná v pohybech i
-výslovnosti, bezvýrazných tváří, upřeného pohledu. Ve vlastní hře mají
-plátěné blůzy v pasu stažené řemenem a na prsou mosazné číslo.
-
-Po předehře a druhém aktu přestávka.
-
-
-
 
 Předehra
-
-
 
 Ústřední kancelář továrny Rossum s Universal Robots. Vpravo vchod. Okny
 v průčelní stěně pohled na nekonečné řady továrních budov. Vlevo další
@@ -4054,35 +3997,5 @@ Alquist: Proč?
 Primus: My--my--patříme k sobě.
 
 Alquist: Ty jsi řekl. (otevře dveře ve středu) Ticho. Jděte.
-
-Primus: Kam?
-
-Alquist: (šeptem) Kam chcete. Heleno, veď ho. (strká je ven) Jdi, Adame.
-    Jdi, Evo; budeš mu ženou. Bud jí mužem, Prime.
-
-(Zavírá za nimi)
-
-Alquist: (sám) Požehnaný dni! (jde po špičkách ke stolu a vylévá zkumavky
-    na zem) Svátku dne šestého! (sedne u psacího stolu, hází knihy na zem;
-    pak otevře bibli, listuje a čte) "A stvořil Bůh člověka k obrazu svému
-    k obrazu Božímu stvořil ho, muže a ženu stvořil je. I požehnal jim Bůh
-    a řekl Rosttež a množte se, a naplňte zemi, a podmaňte ji, a panujte
-    nad rybami mořskými, a nad ptactvem nebeským, i nad všemi živočichy,
-    kteří se hýbají na zemi. (vstává) A viděl Bůh vše, co byl učinil, a
-    bylo velmi dobré. I stal se večer a jitro, den šestý." (jde do středu
-    pokoje) Den šestý! Den milosti. (padá na kolena) Nyní propustíš, Pane,
-    služebníka svého--svého nejzbytečnějšího sluhu Alquista. Rossume,
-    Fabry, Galle, velicí vynálezci, co jste vynalezli velkého proti té
-    dívce, proti tomu chlapci, proti tomu prvnímu páru, který vynašel
-    lásku, pláč, úsměv milování, lásku muže a ženy? Přírodo, přírodo,
-    život nezahyne! Kamarádi, Heleno, život nezahyne! Zase se začne z
-    lásky, začne se nahý a maličký; ujme se v pustině, a nebude mu k
-    ničemu, co jsme dělali a budovali, k ničemu města a továrny, k ničemu
-    naše uměni, k ničemu naše myšlenky, a přece nezahyne! Jen my jsme
-    zahynuli. Rozvalí se domy a stroje, rozpadnou se systémy a jména
-    velikých opadají jako listí; jen ty, lásko, vykveteš na rumišti a
-    svěříš větrům semínko života. Nyní propustíš, Pane, služebníka svého v
-    pokoji; neboť uzřely oči mé--uzřely--spasení tvé skrze lásku, a
-    život nezahyne! (vstává) Nezahyne! (rozpřáhne ruce) Nezahyne!
 
 OPONA
