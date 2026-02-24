@@ -81,7 +81,7 @@ elif uploaded_file is None:
 		
 	content = open_book(text)
 	content_cs = open_book(text_cs)
-    
+
 #print random middle part of the book and translation
 @st.cache_data
 def middle_slice(book):
@@ -121,6 +121,31 @@ value_words = clean_words(tokens)
 freq = FreqDist(value_words)
 
 # Front-end behaviour
+
+if st.sidebar.button("Export to bilingual XLIFF (experimental)", key="btn_xliff"):
+    from lxml import etree
+    
+    src_paras = [p.strip() for p in content.split('\n\n') if p.strip()][:50]
+    tgt_paras = [p.strip() for p in content_cs.split('\n\n') if p.strip()][:50]
+    
+    xliff = etree.Element('xliff', version='1.2')
+    file_elem = etree.SubElement(xliff, 'file', **{'source-language': 'en', 'target-language': 'cs'})
+    body = etree.SubElement(file_elem, 'body')
+    
+    for i, (src, tgt) in enumerate(zip(src_paras, tgt_paras), 1):
+        tu = etree.SubElement(body, 'trans-unit', id=str(i))
+        etree.SubElement(tu, 'source').text = src
+        etree.SubElement(tu, 'target').text = tgt
+    
+    xliff_str = etree.tostring(xliff, encoding='utf-8', xml_declaration=True, pretty_print=True)
+    
+    st.sidebar.download_button(
+        label="Download XLIFF",
+        data=xliff_str,
+        file_name="translation.xlf",
+        mime="application/xml"
+    )
+    st.sidebar.success(f"✓ Generated {len(src_paras)} translation pairs")
 
 st.cache_data.clear()
 st.sidebar.markdown(f'''
