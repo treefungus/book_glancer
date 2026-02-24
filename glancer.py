@@ -294,8 +294,7 @@ feed LLM 1) detailed medailons + 2) possibly extracted chunk corpus + 3) extract
 if not is_local:
     st.warning("⚠️ Character medallion generation requires Ollama (local only)")
     st.selectbox("Select character", ["Gall"], disabled=True)
-    st.button("Generate Medallion", disabled=True, key="btn_medallion_generate_disabled")
-    st.button("Export character as JSON", disabled=True, key="btn_export_json_disabled")
+    st.button("Generate Medallion", disabled=True)
 else:
     import ollama
     import re
@@ -344,30 +343,27 @@ Focus on personality, role in story, characteristics, keep plot unspoilered.
         st.session_state['chunks'] = char_chunks
         
         return response["message"]["content"]
-     
+    
     # Buttons side by side
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("Generate Medallion", key="btn_medallion_generate"):
+        if st.button("Generate Medallion"):
             with st.spinner(f"Generating medallion for {selected_char}..."):
                 medallion = generate_medallion(selected_char)
+            
+            st.markdown(f"### Character Medallion: {selected_char}")
+            st.write(medallion)
     
     with col2:
-        if st.button("Export character as JSON", key="btn_export_json"):
+        if st.button("Export character as JSON"):
             # Generate medallion if not already in session
             if 'medallion' not in st.session_state or st.session_state.get('character') != selected_char:
                 with st.spinner(f"Generating medallion for {selected_char}..."):
                     generate_medallion(selected_char)
             
-            # Get book title safely
-            book_title = uploaded_file.name.replace('.txt', '').replace('.pdf', '') if uploaded_file else "Unknown Book"
-            
             # Build export structure
             character_data = {
-                "metadata": {
-                    "book_title": book_title
-                },
                 "characters": [
                     {
                         "name": st.session_state['character'],
@@ -384,12 +380,7 @@ Focus on personality, role in story, characteristics, keep plot unspoilered.
                 file_name=f"{selected_char}_profile.json",
                 mime="application/json"
             )
-    
-    # Display medallion if it exists (OUTSIDE columns)
-    if 'medallion' in st.session_state:
-        st.markdown(f"### Character Medallion: {st.session_state['character']}")
-        st.write(st.session_state['medallion'])
-            
+
 # B. Chat with Character
 st.divider()
 if not is_local:
