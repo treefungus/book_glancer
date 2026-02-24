@@ -81,7 +81,7 @@ elif uploaded_file is None:
 		
 	content = open_book(text)
 	content_cs = open_book(text_cs)
-
+    
 #print random middle part of the book and translation
 @st.cache_data
 def middle_slice(book):
