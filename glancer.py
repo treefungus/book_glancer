@@ -128,32 +128,31 @@ freq = FreqDist(value_words)
 if not is_local:
     st.write("requires xml library; local only for now")
     st.sidebar.button("Export to bilingual XLIFF (experimental)", disabled=True, key="btn_xliff_disabled")
-else:
-    if st.sidebar.button("Export to bilingual XLIFF (experimental)", key="btn_xliff"):
-        import xml.etree.ElementTree as ET
-        
-        src_paras = [p.strip() for p in content.split('\n\n') if p.strip()][:50]
-        tgt_paras = [p.strip() for p in content_cs.split('\n\n') if p.strip()][:50]
-        
-        xliff = ET.Element('xliff', version='1.2')
-        file_elem = ET.SubElement(xliff, 'file', attrib={'source-language': 'en', 'target-language': 'cs'})
-        body = ET.SubElement(file_elem, 'body')
-        
-        for i, (src, tgt) in enumerate(zip(src_paras, tgt_paras), 1):
-            tu = ET.SubElement(body, 'trans-unit', id=str(i))
-            ET.SubElement(tu, 'source').text = src
-            ET.SubElement(tu, 'target').text = tgt
-        
-        xliff_str = ET.tostring(xliff, encoding='utf-8', xml_declaration=True)
-        
-        st.sidebar.download_button(
-            label="Download XLIFF",
-            data=xliff_str,
-            file_name="translation.xlf",
-            mime="application/xml"
-        )
-        st.sidebar.success(f"✓ Generated {len(src_paras)} translation pairs")
-
+#else:
+#    if st.sidebar.button("Export to bilingual XLIFF (experimental)", key="btn_xliff"):
+#        import xml.etree.ElementTree as ET
+#        
+#        src_paras = [p.strip() for p in content.split('\n\n') if p.strip()][:50]
+#        tgt_paras = [p.strip() for p in content_cs.split('\n\n') if p.strip()][:50]
+#        
+#        xliff = ET.Element('xliff', version='1.2')
+#        file_elem = ET.SubElement(xliff, 'file', attrib={'source-language': 'en', 'target-language': 'cs'})
+#        body = ET.SubElement(file_elem, 'body')
+#        
+#        for i, (src, tgt) in enumerate(zip(src_paras, tgt_paras), 1):
+#            tu = ET.SubElement(body, 'trans-unit', id=str(i))
+#            ET.SubElement(tu, 'source').text = src
+#            ET.SubElement(tu, 'target').text = tgt
+#        
+#        xliff_str = ET.tostring(xliff, encoding='utf-8', xml_declaration=True)
+#        
+#        st.sidebar.download_button(
+#            label="Download XLIFF",
+#            data=xliff_str,
+#            file_name="translation.xlf",
+#            mime="application/xml"
+#        )
+#        st.sidebar.success(f"✓ Generated {len(src_paras)} translation pairs")
 
 st.cache_data.clear()
 st.sidebar.markdown(f'''
