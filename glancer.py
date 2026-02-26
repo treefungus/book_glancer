@@ -127,7 +127,7 @@ freq = FreqDist(value_words)
 
 if not is_local:
     st.write("requires xml library; local only for now")
-    st.sidebar.button("Export to bilingual XLIFF (experimental)", disabled=True, key="btn_xliff_disabled")
+    st.sidebar.button("Export to bilingual XLIFF (experimental, only local)", disabled=True, key="btn_xliff_disabled")
 else:
     if st.sidebar.button("Export to bilingual XLIFF (experimental)", key="btn_xliff"):
         import xml.etree.ElementTree as ET
