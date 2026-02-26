@@ -126,7 +126,6 @@ if not is_local:
     st.write("requires xml library; local only for now")
     st.sidebar.button("Export to bilingual XLIFF (experimental)", disabled=True, key="btn_xliff_disabled")
 else:
-	else:
     if st.sidebar.button("Export to bilingual XLIFF (experimental)", key="btn_xliff"):
         import xml.etree.ElementTree as ET
         src_paras = [p.strip() for p in content.split('\n\n') if p.strip()][:50]
