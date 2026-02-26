@@ -138,7 +138,7 @@ else:
             ET.SubElement(tu, 'source').text = src
             ET.SubElement(tu, 'target').text = tgt
         xliff_str = ET.tostring(xliff, encoding='utf-8', xml_declaration=True)
-                st.sidebar.download_button(
+        st.sidebar.download_button(
             label="Download XLIFF",
             data=xliff_str,
             file_name="translation.xlf",
