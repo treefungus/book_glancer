@@ -39,7 +39,7 @@ import json
 is_local = sys.executable.startswith('/usr/local') or 'localhost' in sys.executable or 'C:\\' in sys.executable
 
 st.subheader('BOOK GLANCER')
-st.write('Quick overview of a book and its translation. Random snap, word frequency, n-grams. By default \'R.U.R\' by Karel Čapek on open license. Strictly non-commercial use.')
+st.write('Quick overview of a book and its translation. Random snap, word frequency, n-grams. Fiction character extraction, generative sum-up, chat with the character living in the novel.\nBy default \'R.U.R\' by Karel Čapek on open license. Strictly non-commercial use.')
 
 uploaded_file = st.sidebar.file_uploader('Choose a book', type=['pdf', 'txt'], key=42)
 uploaded_file_cs = st.sidebar.file_uploader('Choose a translation', type=['pdf', 'txt'], key=24)
